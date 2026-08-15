@@ -1,5 +1,5 @@
 export const TAG_RULES: { tag: string; terms: string[] }[] = [
-  { tag: "Conflito", terms: ["guerra", "conflito", "ataque", "míssil", "militar", "bombard", "tropas", "ofensiva"] },
+  { tag: "Conflito", terms: ["guerra", "conflito", "ataque", "míssil", "militar", "bombard", "tropas", "ofensiva", "naval", "marinha", "porta-aviõ", "porta-aviã", "exército", "frota", "defesa", "drone", "caça", "submarin", "rearma", "otan"] },
   { tag: "Diplomacia", terms: ["diplomac", "acordo", "cúpula", "negocia", "tratado", "embaixad", "onu", "otan"] },
   { tag: "Sanções", terms: ["sanç", "embargo", "tarifa", "bloqueio"] },
   { tag: "Comércio", terms: ["comércio", "exporta", "importa", "tarifa", "mercado", "agro", "soja", "commodit"] },
