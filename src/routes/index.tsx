@@ -6,7 +6,15 @@ import { ArrowDown, Globe2, RefreshCw, Radio, ExternalLink, Search, X } from "lu
 
 import { ContinentShape } from "@/components/ContinentShape";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
-import { extractTags, ALL_TAGS, tagLabel } from "@/lib/tags";
+import {
+  extractTags,
+  ALL_TAGS,
+  tagLabel,
+  EXPRESSIONS,
+  EXPRESSION_BY_TAG,
+  EXPRESSION_HUE,
+  expressionsOf,
+} from "@/lib/tags";
 import { getWorldNews } from "@/lib/news.functions";
 import {
   CONTINENTS,
