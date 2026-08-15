@@ -55,6 +55,7 @@ function Index() {
   const [active, setActive] = useState<ContinentId | null>(null);
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [exprs, setExprs] = useState<string[]>([]);
   const [selected, setSelected] = useState<NewsItem | null>(null);
 
   const items = data?.items ?? [];
