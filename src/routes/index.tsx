@@ -286,7 +286,7 @@ function Index() {
                         key={t}
                         className="rounded-full border border-border px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.16em] text-muted-foreground"
                       >
-                        {t}
+                        {tagLabel(t)}
                       </span>
                     ))}
                     <span className="ml-auto flex items-center gap-1 text-[0.55rem] uppercase tracking-[0.16em] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-80">
