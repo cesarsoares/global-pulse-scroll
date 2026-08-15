@@ -6,7 +6,15 @@ import { ArrowDown, Globe2, RefreshCw, Radio, ExternalLink, Search, X } from "lu
 
 import { ContinentShape } from "@/components/ContinentShape";
 import { ArticlePreviewDialog } from "@/components/ArticlePreviewDialog";
-import { extractTags, ALL_TAGS, tagLabel } from "@/lib/tags";
+import {
+  extractTags,
+  ALL_TAGS,
+  tagLabel,
+  EXPRESSIONS,
+  EXPRESSION_BY_TAG,
+  EXPRESSION_HUE,
+  expressionsOf,
+} from "@/lib/tags";
 import { getWorldNews } from "@/lib/news.functions";
 import {
   CONTINENTS,
@@ -55,6 +63,7 @@ function Index() {
   const [active, setActive] = useState<ContinentId | null>(null);
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [exprs, setExprs] = useState<string[]>([]);
   const [selected, setSelected] = useState<NewsItem | null>(null);
 
   const items = data?.items ?? [];
@@ -71,7 +80,18 @@ function Index() {
 
   const availableTags = useMemo(() => {
     const present = new Set(tagged.flatMap((t) => t.tags));
-    return ALL_TAGS.filter((t) => present.has(t));
+    return ALL_TAGS.filter(
+      (t) =>
+        present.has(t) &&
+        (exprs.length === 0 || exprs.includes(EXPRESSION_BY_TAG[t] ?? "")),
+    );
+  }, [tagged, exprs]);
+
+  const exprCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const { tags: itemTags } of tagged)
+      for (const e of expressionsOf(itemTags)) c[e] = (c[e] ?? 0) + 1;
+    return c;
   }, [tagged]);
 
   const feed = useMemo(() => {
@@ -80,6 +100,11 @@ function Index() {
     return tagged
       .filter(({ item, tags: itemTags }) => {
         if (active && item.continent !== active) return false;
+        if (
+          exprs.length &&
+          !expressionsOf(itemTags).some((e) => exprs.includes(e))
+        )
+          return false;
         if (tags.length && !tags.some((t) => itemTags.includes(t))) return false;
         if (terms.length) {
           const haystack = `${item.title} ${item.source} ${itemTags.join(" ")}`.toLowerCase();
@@ -88,19 +113,33 @@ function Index() {
         return true;
       })
       .map((t) => t.item);
-  }, [tagged, active, tags, query]);
+  }, [tagged, active, exprs, tags, query]);
 
   const feedTags = useMemo(
     () => new Map(tagged.map((t) => [t.item.id, t.tags])),
     [tagged],
   );
 
-  const hasFilters = !!active || tags.length > 0 || query.trim().length > 0;
+  const hasFilters =
+    !!active || exprs.length > 0 || tags.length > 0 || query.trim().length > 0;
   const clearFilters = () => {
     setActive(null);
+    setExprs([]);
     setTags([]);
     setQuery("");
   };
+
+  const toggleExpr = (e: string) =>
+    setExprs((prev) => {
+      const next = prev.includes(e) ? prev.filter((x) => x !== e) : [...prev, e];
+      // mantém apenas tags temáticas coerentes com as expressões selecionadas
+      setTags((t) =>
+        next.length
+          ? t.filter((tag) => next.includes(EXPRESSION_BY_TAG[tag] ?? ""))
+          : t,
+      );
+      return next;
+    });
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -203,7 +242,46 @@ function Index() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div>
+            <p className="mb-2 text-[0.58rem] uppercase tracking-[0.28em] text-muted-foreground">
+              expressões do poder nacional · adesg
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {EXPRESSIONS.map((e) => {
+                const on = exprs.includes(e);
+                const n = exprCounts[e] ?? 0;
+                const hue = EXPRESSION_HUE[e];
+                return (
+                  <button
+                    key={e}
+                    onClick={() => toggleExpr(e)}
+                    aria-pressed={on}
+                    disabled={n === 0}
+                    style={{
+                      ["--zone" as string]: hue,
+                      borderColor: on ? hue : undefined,
+                      color: on ? hue : undefined,
+                      backgroundColor: on ? `color-mix(in oklab, ${hue} 14%, transparent)` : undefined,
+                    }}
+                    className={`flex items-center gap-2 rounded-md border px-3 py-2 font-display text-[0.6rem] uppercase tracking-[0.2em] transition-colors disabled:cursor-not-allowed disabled:opacity-35 ${
+                      on
+                        ? ""
+                        : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: hue, opacity: on ? 1 : 0.5 }}
+                    />
+                    {e}
+                    <span className="text-[0.55rem] opacity-60">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             {availableTags.map((t) => {
               const on = tags.includes(t);
               return (

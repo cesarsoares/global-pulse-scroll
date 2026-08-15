@@ -30,6 +30,38 @@ export const EXPRESSION_BY_TAG: Record<string, string> = {
   Migração: "Psicossocial",
 };
 
+/** Ordem canônica das expressões do poder nacional (ADESG). */
+export const EXPRESSIONS = [
+  "Política",
+  "Econômica",
+  "Psicossocial",
+  "Militar",
+  "Científico-Tecnológica",
+] as const;
+
+export const EXPRESSION_HUE: Record<string, string> = {
+  Política: "oklch(0.72 0.15 265)",
+  Econômica: "oklch(0.76 0.14 150)",
+  Psicossocial: "oklch(0.78 0.13 60)",
+  Militar: "oklch(0.7 0.17 25)",
+  "Científico-Tecnológica": "oklch(0.75 0.13 200)",
+};
+
+/** Expressões cobertas por um conjunto de tags temáticas. */
+export function expressionsOf(tags: string[]): string[] {
+  const found = new Set<string>();
+  for (const t of tags) {
+    const e = EXPRESSION_BY_TAG[t];
+    if (e) found.add(e);
+  }
+  return EXPRESSIONS.filter((e) => found.has(e));
+}
+
+/** Tags temáticas de uma expressão. */
+export function tagsOfExpression(expr: string): string[] {
+  return Object.keys(EXPRESSION_BY_TAG).filter((t) => EXPRESSION_BY_TAG[t] === expr);
+}
+
 /** Rótulo exibido: "MILITAR | CONFLITO". */
 export function tagLabel(tag: string): string {
   const expr = EXPRESSION_BY_TAG[tag];
