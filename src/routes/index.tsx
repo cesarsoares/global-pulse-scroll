@@ -72,7 +72,18 @@ function Index() {
 
   const availableTags = useMemo(() => {
     const present = new Set(tagged.flatMap((t) => t.tags));
-    return ALL_TAGS.filter((t) => present.has(t));
+    return ALL_TAGS.filter(
+      (t) =>
+        present.has(t) &&
+        (exprs.length === 0 || exprs.includes(EXPRESSION_BY_TAG[t] ?? "")),
+    );
+  }, [tagged, exprs]);
+
+  const exprCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const { tags: itemTags } of tagged)
+      for (const e of expressionsOf(itemTags)) c[e] = (c[e] ?? 0) + 1;
+    return c;
   }, [tagged]);
 
   const feed = useMemo(() => {
@@ -81,6 +92,11 @@ function Index() {
     return tagged
       .filter(({ item, tags: itemTags }) => {
         if (active && item.continent !== active) return false;
+        if (
+          exprs.length &&
+          !expressionsOf(itemTags).some((e) => exprs.includes(e))
+        )
+          return false;
         if (tags.length && !tags.some((t) => itemTags.includes(t))) return false;
         if (terms.length) {
           const haystack = `${item.title} ${item.source} ${itemTags.join(" ")}`.toLowerCase();
