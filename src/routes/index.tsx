@@ -113,19 +113,33 @@ function Index() {
         return true;
       })
       .map((t) => t.item);
-  }, [tagged, active, tags, query]);
+  }, [tagged, active, exprs, tags, query]);
 
   const feedTags = useMemo(
     () => new Map(tagged.map((t) => [t.item.id, t.tags])),
     [tagged],
   );
 
-  const hasFilters = !!active || tags.length > 0 || query.trim().length > 0;
+  const hasFilters =
+    !!active || exprs.length > 0 || tags.length > 0 || query.trim().length > 0;
   const clearFilters = () => {
     setActive(null);
+    setExprs([]);
     setTags([]);
     setQuery("");
   };
+
+  const toggleExpr = (e: string) =>
+    setExprs((prev) => {
+      const next = prev.includes(e) ? prev.filter((x) => x !== e) : [...prev, e];
+      // mantém apenas tags temáticas coerentes com as expressões selecionadas
+      setTags((t) =>
+        next.length
+          ? t.filter((tag) => next.includes(EXPRESSION_BY_TAG[tag] ?? ""))
+          : t,
+      );
+      return next;
+    });
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
