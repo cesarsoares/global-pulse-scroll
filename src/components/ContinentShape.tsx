@@ -30,15 +30,18 @@ const PATHS: Record<ContinentId, string[]> = {
 export function ContinentShape({
   continent,
   className,
+  style,
 }: {
   continent: ContinentId;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <svg
       viewBox="0 0 100 100"
       aria-hidden="true"
       className={className}
+      style={style}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}

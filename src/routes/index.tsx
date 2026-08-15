@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { ArrowDown, Globe2, RefreshCw, Radio, ExternalLink } from "lucide-react";
 
+import { ContinentShape } from "@/components/ContinentShape";
 import { getWorldNews } from "@/lib/news.functions";
 import { CONTINENTS, CONTINENT_MAP, type ContinentId } from "@/lib/continents";
 
