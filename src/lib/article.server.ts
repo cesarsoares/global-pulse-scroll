@@ -47,11 +47,26 @@ function firstParagraphs(html: string): string {
   return paras.slice(0, 3).join("\n\n").slice(0, 1200);
 }
 
+// Links do Google News trazem a URL real embutida em base64 no caminho /rss/articles/<payload>.
+function decodeGoogleNewsUrl(url: string): string | null {
+  const m = url.match(/\/(?:rss\/)?articles\/([A-Za-z0-9_-]{20,})/);
+  if (!m?.[1]) return null;
+  try {
+    const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
+    const found = bin.match(/https?:\/\/[^\s"'\\\x00-\x1f]{10,}/);
+    if (!found) return null;
+    return found[0].replace(/[^\w\-./:?=&%#~+,;@]+$/, "");
+  } catch {
+    return null;
+  }
+}
+
 export async function loadArticlePreview(url: string): Promise<ArticlePreview> {
-  let finalUrl = url;
+  let finalUrl = decodeGoogleNewsUrl(url) ?? url;
   let html = "";
   try {
-    const res = await fetch(url, {
+    const res = await fetch(finalUrl, {
       redirect: "follow",
       headers: {
         "User-Agent":
@@ -59,7 +74,7 @@ export async function loadArticlePreview(url: string): Promise<ArticlePreview> {
         "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
       },
     });
-    finalUrl = res.url || url;
+    finalUrl = res.url || finalUrl;
     html = await res.text();
     // Google News interstitial: extrai o link canônico do artigo.
     const redirect = html.match(/data-n-au=["']([^"']+)["']/) ??
