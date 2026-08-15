@@ -13,6 +13,29 @@ export const TAG_RULES: { tag: string; terms: string[] }[] = [
   { tag: "Migração", terms: ["migra", "refugiad", "imigra", "deporta"] },
 ];
 
+// Expressões do poder nacional (doutrina ADESG): Política, Econômica,
+// Psicossocial, Militar e Científico-Tecnológica.
+export const EXPRESSION_BY_TAG: Record<string, string> = {
+  Conflito: "Militar",
+  Segurança: "Militar",
+  Diplomacia: "Política",
+  Eleições: "Política",
+  Sanções: "Econômica",
+  Comércio: "Econômica",
+  Energia: "Econômica",
+  Economia: "Econômica",
+  Nuclear: "Científico-Tecnológica",
+  Tecnologia: "Científico-Tecnológica",
+  Clima: "Psicossocial",
+  Migração: "Psicossocial",
+};
+
+/** Rótulo exibido: "MILITAR | CONFLITO". */
+export function tagLabel(tag: string): string {
+  const expr = EXPRESSION_BY_TAG[tag];
+  return expr ? `${expr} | ${tag}` : tag;
+}
+
 export function extractTags(text: string): string[] {
   const t = text.toLowerCase();
   const tags = TAG_RULES.filter((r) => r.terms.some((term) => t.includes(term))).map(
