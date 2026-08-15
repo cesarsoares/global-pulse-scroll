@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { getArticlePreview } from "@/lib/article.functions";
 import { CONTINENT_MAP, type NewsItem } from "@/lib/continents";
-import { extractTags } from "@/lib/tags";
+import { extractTags, tagLabel } from "@/lib/tags";
 
 export function ArticlePreviewDialog({
   item,
@@ -51,7 +51,7 @@ export function ArticlePreviewDialog({
                   key={t}
                   className="rounded-full border border-border px-2.5 py-1 text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground"
                 >
-                  {t}
+                  {tagLabel(t)}
                 </span>
               ))}
             </div>
