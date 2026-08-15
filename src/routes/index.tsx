@@ -98,22 +98,29 @@ function Index() {
         <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-10">
           {CONTINENTS.map((c, idx) => {
             const n = counts[c.id] ?? 0;
-            const size = 96 + Math.min(n, 14) * 6;
             const isActive = active === c.id;
             return (
               <button
                 key={c.id}
                 onClick={() => setActive(isActive ? null : c.id)}
                 style={{
-                  width: size,
-                  height: size,
                   ["--zone" as string]: c.hue,
                   animationDelay: `${idx * 0.45}s`,
                 }}
-                className={`bubble float ${isActive ? "bubble-active" : ""}`}
+                className={`zone-card float ${isActive ? "zone-card-active" : ""}`}
               >
-                <span className="font-display text-2xl">{n}</span>
-                <span className="mt-1 text-[0.6rem] uppercase tracking-[0.18em] opacity-80">
+                <ContinentShape
+                  continent={c.id}
+                  className="zone-shape"
+                  style={{ color: c.hue }}
+                />
+                <div className="relative flex items-baseline justify-between">
+                  <span className="font-display text-3xl">{n}</span>
+                  <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                    {c.short}
+                  </span>
+                </div>
+                <span className="relative mt-2 text-[0.65rem] uppercase tracking-[0.22em] opacity-85">
                   {c.name}
                 </span>
               </button>
