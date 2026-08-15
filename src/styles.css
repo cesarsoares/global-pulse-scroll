@@ -132,6 +132,135 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* ── Orbe: intelligence console theme ───────────────────────── */
+:root {
+  --background: oklch(0.16 0.025 250);
+  --foreground: oklch(0.94 0.01 240);
+  --card: oklch(0.21 0.028 252);
+  --card-foreground: oklch(0.94 0.01 240);
+  --popover: oklch(0.21 0.028 252);
+  --popover-foreground: oklch(0.94 0.01 240);
+  --primary: oklch(0.78 0.15 78);
+  --primary-foreground: oklch(0.18 0.03 250);
+  --secondary: oklch(0.26 0.03 252);
+  --secondary-foreground: oklch(0.94 0.01 240);
+  --muted: oklch(0.26 0.03 252);
+  --muted-foreground: oklch(0.68 0.02 250);
+  --accent: oklch(0.82 0.15 82);
+  --accent-foreground: oklch(0.18 0.03 250);
+  --border: oklch(0.32 0.03 252);
+  --input: oklch(0.32 0.03 252);
+  --ring: oklch(0.82 0.15 82);
+  --radius: 0.5rem;
+
+  --signal: oklch(0.78 0.17 145);
+  --zone-americas: oklch(0.78 0.16 60);
+  --zone-europe: oklch(0.75 0.14 250);
+  --zone-asia: oklch(0.72 0.19 20);
+  --zone-mideast: oklch(0.8 0.15 100);
+  --zone-africa: oklch(0.78 0.15 165);
+  --zone-oceania: oklch(0.75 0.14 300);
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-signal: var(--signal);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, oklch(1 0 0 / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(1 0 0 / 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black, transparent 75%);
+}
+
+@utility bg-halo {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% -10%, oklch(0.82 0.15 82 / 0.16), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 15% 5%, oklch(0.75 0.14 250 / 0.14), transparent 70%);
+}
+
+@utility bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--foreground);
+  border: 1px solid color-mix(in oklab, var(--zone) 55%, transparent);
+  background:
+    radial-gradient(circle at 32% 28%, color-mix(in oklab, var(--zone) 34%, transparent), transparent 62%),
+    color-mix(in oklab, var(--zone) 9%, var(--card));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--zone) 40%, transparent),
+    0 18px 45px -20px color-mix(in oklab, var(--zone) 60%, transparent);
+  backdrop-filter: blur(6px);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+
+@utility bubble-active {
+  transform: scale(1.07);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--zone) 60%, transparent),
+    0 0 0 2px color-mix(in oklab, var(--zone) 70%, transparent),
+    0 24px 60px -18px color-mix(in oklab, var(--zone) 75%, transparent);
+}
+
+@utility dispatch {
+  position: relative;
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-left: 2px solid color-mix(in oklab, var(--zone) 70%, transparent);
+  background: color-mix(in oklab, var(--card) 82%, transparent);
+  padding: 1rem 1.1rem;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    opacity 0.25s ease;
+}
+.dispatch:hover {
+  transform: translateX(4px);
+  opacity: 1 !important;
+  border-color: color-mix(in oklab, var(--zone) 55%, var(--border));
+}
+
+@utility float {
+  animation: orbe-float 7s ease-in-out infinite;
+}
+
+@utility signal-pulse {
+  animation: orbe-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes orbe-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes orbe-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -140,5 +269,11 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-body);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 600;
   }
 }
