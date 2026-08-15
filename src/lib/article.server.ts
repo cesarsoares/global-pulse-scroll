@@ -47,49 +47,78 @@ function firstParagraphs(html: string): string {
   return paras.slice(0, 3).join("\n\n").slice(0, 1200);
 }
 
-// Links do Google News trazem a URL real embutida em base64 no caminho /rss/articles/<payload>.
-function decodeGoogleNewsUrl(url: string): string | null {
-  const m = url.match(/\/(?:rss\/)?articles\/([A-Za-z0-9_-]{20,})/);
-  if (!m?.[1]) return null;
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
+
+// Links de agregador escondem a URL do publisher; resolve via o endpoint de redirect.
+async function resolveAggregatorUrl(url: string): Promise<string> {
+  if (!/news\.google\.com/.test(url)) return url;
+  const id = url.split("/articles/")[1]?.split("?")[0];
+  if (!id) return url;
   try {
-    const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
-    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
-    const found = bin.match(/https?:\/\/[^\s"'\\\x00-\x1f]{10,}/);
-    if (!found) return null;
-    return found[0].replace(/[^\w\-./:?=&%#~+,;@]+$/, "");
+    const page = await (
+      await fetch(url, { headers: { "User-Agent": UA } })
+    ).text();
+    const ts = page.match(/data-n-a-ts="([^"]+)"/)?.[1];
+    const sg = page.match(/data-n-a-sg="([^"]+)"/)?.[1];
+    const fullId = page.match(/data-n-a-id="([^"]+)"/)?.[1] ?? id;
+    if (!ts || !sg) return url;
+
+    const payload = JSON.stringify([
+      "garturlreq",
+      [
+        ["pt-BR", "BR", ["FINANCE_TOP_INDICES", "WEB_TEST_1_0_0"], null, null, 1, 1, "BR:pt-419", null, null, null, null, null, null, null, 0],
+        "pt-BR",
+        "BR",
+        1,
+        [2, 4, 8],
+        1,
+        1,
+        null,
+        0,
+        0,
+        null,
+        0,
+      ],
+      fullId,
+      ts,
+      sg,
+    ]);
+    const body = new URLSearchParams({
+      "f.req": JSON.stringify([[["Fbv4je", payload]]]),
+    });
+    const res = await fetch(
+      "https://news.google.com/_/DotsSplashUi/data/batchexecute",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "User-Agent": UA,
+        },
+        body,
+      },
+    );
+    const text = await res.text();
+    const found = text.match(/https?:\/\/(?!news\.google)[^\\"]{20,}/)?.[0];
+    return found ?? url;
   } catch {
-    return null;
+    return url;
   }
 }
 
 export async function loadArticlePreview(url: string): Promise<ArticlePreview> {
-  let finalUrl = decodeGoogleNewsUrl(url) ?? url;
+  let finalUrl = await resolveAggregatorUrl(url);
   let html = "";
   try {
     const res = await fetch(finalUrl, {
       redirect: "follow",
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+        "User-Agent": UA,
         "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
       },
     });
     finalUrl = res.url || finalUrl;
     html = await res.text();
-    // Google News interstitial: extrai o link canônico do artigo.
-    const redirect = html.match(/data-n-au=["']([^"']+)["']/) ??
-      html.match(/<a[^>]+href=["'](https?:\/\/(?!news\.google)[^"']+)["'][^>]*>/);
-    if (/news\.google\.com/.test(finalUrl) && redirect?.[1]) {
-      const res2 = await fetch(redirect[1], {
-        redirect: "follow",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-        },
-      });
-      finalUrl = res2.url || redirect[1];
-      html = await res2.text();
-    }
   } catch {
     /* devolve o que der */
   }
