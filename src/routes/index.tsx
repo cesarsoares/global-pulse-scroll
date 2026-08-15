@@ -96,7 +96,7 @@ function Index() {
       </section>
 
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-14">
-        <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-10">
+        <div className="flex flex-wrap items-stretch justify-center gap-4 sm:gap-5">
           {CONTINENTS.map((c, idx) => {
             const n = counts[c.id] ?? 0;
             const isActive = active === c.id;
