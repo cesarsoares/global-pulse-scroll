@@ -5,7 +5,7 @@ const FEED = (query: string) =>
 
 function pick(block: string, tag: string): string {
   const m = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i"));
-  if (!m) return "";
+  if (!m || !m[1]) return "";
   return m[1]
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
     .replace(/<[^>]+>/g, "")
