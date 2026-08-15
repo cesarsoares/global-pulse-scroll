@@ -242,7 +242,46 @@ function Index() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div>
+            <p className="mb-2 text-[0.58rem] uppercase tracking-[0.28em] text-muted-foreground">
+              expressões do poder nacional · adesg
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {EXPRESSIONS.map((e) => {
+                const on = exprs.includes(e);
+                const n = exprCounts[e] ?? 0;
+                const hue = EXPRESSION_HUE[e];
+                return (
+                  <button
+                    key={e}
+                    onClick={() => toggleExpr(e)}
+                    aria-pressed={on}
+                    disabled={n === 0}
+                    style={{
+                      ["--zone" as string]: hue,
+                      borderColor: on ? hue : undefined,
+                      color: on ? hue : undefined,
+                      backgroundColor: on ? `color-mix(in oklab, ${hue} 14%, transparent)` : undefined,
+                    }}
+                    className={`flex items-center gap-2 rounded-md border px-3 py-2 font-display text-[0.6rem] uppercase tracking-[0.2em] transition-colors disabled:cursor-not-allowed disabled:opacity-35 ${
+                      on
+                        ? ""
+                        : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: hue, opacity: on ? 1 : 0.5 }}
+                    />
+                    {e}
+                    <span className="text-[0.55rem] opacity-60">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             {availableTags.map((t) => {
               const on = tags.includes(t);
               return (
